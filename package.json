@@ -1,0 +1,24 @@
+{
+    "name": "open-swarm",
+    "version": "1.0.0",
+    "description": "Node.js dependencies for slides_agent html2pptx workflow",
+    "private": true,
+    "scripts": {
+        "postinstall": "patch-package && node -e \"process.env.PLAYWRIGHT_BROWSERS_PATH=require('path').join(process.cwd(),'.playwright-browsers');require('child_process').execSync('npx playwright install chromium',{stdio:'inherit',env:process.env})\""
+    },
+    "dependencies": {
+        "dom-to-pptx": "^1.1.5",
+        "playwright": "^1.59.1",
+        "pptxgenjs": "^3.12.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-icons": "^5.0.0",
+        "sharp": "^0.33.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "devDependencies": {
+        "patch-package": "^8.0.1"
+    }
+}
