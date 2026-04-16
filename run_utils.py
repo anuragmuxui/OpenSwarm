@@ -24,24 +24,7 @@ def _resolve_bin_name() -> str:
 # is safe to call from outside the venv.
 def _bootstrap() -> None:
     _repo = Path(__file__).resolve().parent
-    _venv = _repo / ".venv"
-    _venv_python = _venv / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
-
-    # If not running inside the repo venv, set it up and re-launch into it.
-    if Path(sys.executable).resolve() != _venv_python.resolve():
-        if not _venv_python.exists():
-            print("Setting up virtual environment…")
-            subprocess.check_call([sys.executable, "-m", "venv", str(_venv)])
-            print("Installing dependencies, please wait…\n")
-            subprocess.check_call([str(_venv_python), "-m", "pip", "install", "-e", str(_repo)])
-            print("\nDone.\n")
-        # Use subprocess.run instead of os.execv — on Windows, os.execv hands off
-        # the ConPTY pipe in a broken state which causes the TUI to receive mouse
-        # movements as text input. subprocess.run keeps the parent alive as the
-        # terminal owner and gives the child clean handle inheritance.
-        sys.exit(subprocess.run([str(_venv_python)] + sys.argv).returncode)
-
-    # Running inside the venv — ensure deps are present (handles missing/corrupt install).
+    # Ensure deps are present — install into the current Python environment.
     try:
         import dotenv        # noqa: F401
         import rich          # noqa: F401
@@ -51,7 +34,6 @@ def _bootstrap() -> None:
         print("Installing dependencies, please wait…\n")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", str(_repo)])
         print("\nDone.\n")
-        sys.exit(subprocess.run([sys.executable] + sys.argv).returncode)
 
     # Ensure the Playwright browser binary for the installed playwright version
     # is present. playwright install is idempotent — it exits quickly if the

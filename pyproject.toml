@@ -4,7 +4,7 @@ description = "An open-source multi-agent AI team built on Agency Swarm and the 
 version = "0.1.0"
 license = { text = "MIT" }
 keywords = ["agency-swarm", "openai", "multi-agent", "open-source", "openswarm"]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "agency-swarm[fastapi,jupyter,litellm] @ git+https://github.com/VRSEN/agency-swarm.git@main",
     "questionary>=2.0.0",
