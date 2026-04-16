@@ -3,9 +3,13 @@ mnt/
 .bun-cache/
 .playwright-browsers/
 
-# TUI binary — downloaded automatically on first run from GitHub Releases
-agency.exe
-agency
+# TUI binaries — downloaded automatically on first run from GitHub Releases
+agency-windows-x64.exe
+agency-windows-arm64.exe
+agency-darwin-x64
+agency-darwin-arm64
+agency-linux-x64
+agency-linux-arm64
 
 # Agency Swarm
 .agency_swarm_chats/
@@ -178,3 +182,5 @@ cython_debug/
 #.idea/
 
 .agency_swarm/
+third_party/
+.claude/

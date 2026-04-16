@@ -5,6 +5,18 @@ import shutil
 import tempfile
 from pathlib import Path
 
+def _resolve_bin_name() -> str:
+    """Return the platform+arch-specific TUI binary filename."""
+    import platform
+    machine = platform.machine().lower()
+    arch = "arm64" if machine in ("arm64", "aarch64") else "x64"
+    if sys.platform == "win32":
+        return f"agency-windows-{arch}.exe"
+    if sys.platform == "darwin":
+        return f"agency-darwin-{arch}"
+    return f"agency-linux-{arch}"
+
+
 # ── Bootstrap: create venv + install deps automatically on first run ─────────
 # Only stdlib imports above. _bootstrap() is called explicitly — either from
 # swarm.py (via `from run import _bootstrap; _bootstrap()`) or from the
@@ -113,7 +125,7 @@ def _bootstrap() -> None:
             print("\nDone.\n")
 
     # Download the OpenSwarm TUI binary from GitHub Releases if missing.
-    _bin_name = "agency.exe" if sys.platform == "win32" else "agency"
+    _bin_name = _resolve_bin_name()
     _bin_path = _repo / _bin_name
     if not _bin_path.exists():
         import urllib.request
@@ -203,36 +215,13 @@ def _configure_demo_console() -> None:
             pass
 
 
-def patch_terminal_title_binary() -> None:
-    """
-    Overwrite Agency Swarm's cached TUI executable with the repo-local `agency.exe`.
-
-    The "AGENTSWARM" banner/title is rendered by that external executable, not by Python.
-    """
-    local_exe = Path(__file__).resolve().parent / "agency.exe"
-    if not local_exe.exists():
-        return
-
-    try:
-        from agency_swarm.ui.demos import agentswarm_cli as cli
-        cached_exe = Path(cli._command()[0])
-    except Exception:
-        return
-
-    try:
-        cached_exe.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(local_exe, cached_exe)
-    except Exception:
-        return
-
-
 def main() -> None:
     from dotenv import load_dotenv
     load_dotenv()
 
     if not os.getenv("AGENTSWARM_BIN"):
         _repo = Path(__file__).resolve().parent
-        local_exe = _repo / "agency.exe"
+        local_exe = _repo / _resolve_bin_name()
         if local_exe.exists():
             os.environ["AGENTSWARM_BIN"] = str(local_exe)
 

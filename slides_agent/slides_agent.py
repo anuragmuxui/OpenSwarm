@@ -22,9 +22,6 @@ from .tools import (
     CheckSlide,
     DownloadImage,
     EnsureRasterImage,
-    # ExtractPptxTextInventory,
-    # RearrangePptxSlidesFromTemplate,
-    # ApplyPptxTextReplacements,
     ImageSearch,
     GenerateImage,
 )

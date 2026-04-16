@@ -57,11 +57,11 @@ dependencies = [
 ]
 
 [project.scripts]
-openswarm = "run:main"
+openswarm = "run_utils:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 exclude = ["agentswarm-cli*", "venv*", ".venv*", ".agency_swarm*", "node_modules*", "*.node_modules*", "activity*", "mnt*", "pptx*", "slides"]
 
 [tool.setuptools.package-data]
-"*" = ["*.md", "*.json", "agency.exe"]
+"*" = ["*.md", "*.json", "agency-*"]

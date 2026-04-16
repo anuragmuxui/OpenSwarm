@@ -2,7 +2,6 @@
 
 import os
 import subprocess
-import sys
 import tempfile
 from copy import deepcopy
 from pathlib import Path
@@ -11,9 +10,6 @@ from typing import List, Optional
 from agency_swarm.tools import BaseTool
 from pydantic import Field
 
-# Add slides directory to path for render_slides module
-SLIDES_DIR = Path(__file__).parent.parent.parent / "slides"
-sys.path.insert(0, str(SLIDES_DIR))
 
 
 class CheckSlideCanvasOverflow(BaseTool):
@@ -78,7 +74,7 @@ class CheckSlideCanvasOverflow(BaseTool):
 
         # Import render_slides for DPI calculation
         try:
-            import render_slides
+            from .render_slides import calc_dpi_via_ooxml, rasterize
         except ImportError:
             return "Error: Could not import render_slides module"
 
@@ -91,7 +87,7 @@ class CheckSlideCanvasOverflow(BaseTool):
 
         # Calculate DPI
         try:
-            dpi = render_slides.calc_dpi_via_ooxml(
+            dpi = calc_dpi_via_ooxml(
                 str(input_path), self.max_width_px, self.max_height_px
             )
         except Exception as e:
@@ -141,7 +137,7 @@ class CheckSlideCanvasOverflow(BaseTool):
             prs.save(str(enlarged_pptx))
 
             # Render to images
-            img_paths = render_slides.rasterize(str(enlarged_pptx), str(Path(tmpdir) / "imgs"), dpi)
+            img_paths = rasterize(str(enlarged_pptx), str(Path(tmpdir) / "imgs"), dpi)
 
             # Calculate padding ratios
             pad_ratio_w = pad_emu / w1

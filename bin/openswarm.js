@@ -9,7 +9,7 @@ const runScript = path.join(__dirname, '..', 'run_utils.py')
 
 // Prefer python3, fall back to python (covers Windows where it's usually 'python')
 const candidates = process.platform === 'win32'
-  ? ['python', 'python3', 'py']
+  ? ['py', 'python', 'python3']
   : ['python3', 'python']
 
 let python = null
