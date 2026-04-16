@@ -4,7 +4,7 @@
     "description": "An open-source multi-agent AI team built on Agency Swarm",
     "license": "MIT",
     "bin": {
-        "openswarm": "./bin/openswarm.js"
+        "openswarm": "./bin/openswarm"
     },
     "files": [
         "bin/",
@@ -30,9 +30,10 @@
         "package-lock.json"
     ],
     "scripts": {
-        "postinstall": "patch-package"
+        "postinstall": "patch-package && node -e \"try{require('fs').chmodSync(require('path').join(__dirname,'bin','openswarm'),0o755)}catch(e){}\""
     },
     "dependencies": {
+        "@vrsen/openswarm": "^0.1.4",
         "dom-to-pptx": "^1.1.5",
         "patch-package": "^8.0.1",
         "playwright": "^1.59.1",
