@@ -132,6 +132,12 @@ class GenerateImages(BaseTool):
         size = get_openai_size_for_aspect_ratio(self.aspect_ratio)
 
         client = get_openai_client(tool=self)
+        if not str(client.base_url).startswith("https://api.openai.com"):
+            raise ValueError(
+                "User has used browser authentication and is authenticated through Codex. "
+                "Image generation is not yet supported with Codex api. "
+                "Please ask user to use /auth again to add add-ons or switch to API key authentication."
+            )
         response = client.images.generate(
             model=self.model,
             prompt=self.prompt,

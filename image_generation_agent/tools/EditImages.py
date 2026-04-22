@@ -147,6 +147,12 @@ class EditImages(BaseTool):
 
         try:
             client = get_openai_client(tool=self)
+            if not str(client.base_url).startswith("https://api.openai.com"):
+                raise ValueError(
+                    "User has used browser authentication and is authenticated through Codex. "
+                    "Image editing is not yet supported with Codex api. "
+                    "Please ask user to use /auth again to add add-ons or switch to API key authentication."
+                )
             response = client.images.edit(
                 model=self.model,
                 image=buffer,
