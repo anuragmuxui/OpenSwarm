@@ -2,11 +2,6 @@ name: Build TUI Binaries
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
-    paths:
-      - "third_party/agentswarm-cli-dev/**"
 
 jobs:
   build:
