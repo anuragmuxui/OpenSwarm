@@ -22,11 +22,11 @@ function resolveAgentswarm(startDir) {
 }
 
 function getBinaryName() {
-  return process.platform === 'win32' ? 'agentswarm.exe' : `agentswarm-${process.platform === 'darwin' ? 'darwin' : 'linux'}-${os.arch() === 'arm64' ? 'arm64' : 'x64'}`
+  return process.platform === 'win32' ? `agentswarm-windows-${os.arch() === 'arm64' ? 'arm64' : 'x64'}.exe` : `agentswarm-${process.platform === 'darwin' ? 'darwin' : 'linux'}-${os.arch() === 'arm64' ? 'arm64' : 'x64'}`
 }
 
 function getDownloadUrl(binaryName) {
-  return `https://github.com/ArtemShatokhin/agentswarm-cli/releases/latest/download/${binaryName}`
+  return `https://github.com/VRSEN/OpenSwarm/releases/latest/download/${binaryName}`
 }
 
 function download(url, dest) {
