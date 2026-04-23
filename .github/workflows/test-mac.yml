@@ -59,6 +59,16 @@ jobs:
                   timeout=120,
               )
 
+          def resolve_launcher(root):
+              candidates = [
+                  root / "node_modules" / ".bin" / "openswarm",
+                  root / "node_modules" / "@vrsen" / "openswarm" / "bin" / "openswarm",
+              ]
+              for candidate in candidates:
+                  if candidate.exists():
+                      return candidate
+              return None
+
           repo = pathlib.Path.cwd()
           root = pathlib.Path(tempfile.mkdtemp(prefix="openswarm-smoke-"))
           release_dir = root / "release"
@@ -80,22 +90,37 @@ jobs:
               env=env,
           )
 
-          binary = root / "node_modules" / "@vrsen" / "openswarm" / "bin" / "openswarm"
+          binary = resolve_launcher(root)
 
-          failure_env = {**env, "OPENSWARM_TUI_URL": f"{base_url}/missing/{binary_name}"}
-          failure_runs = [run_version(binary, root, failure_env) for _ in range(2)]
+          if binary is None:
+              listing = subprocess.run(
+                  ["find", "node_modules", "-maxdepth", "4", "-name", "openswarm"],
+                  cwd=root,
+                  capture_output=True,
+                  text=True,
+                  env=env,
+              )
+          else:
+              listing = None
 
-          invalid_binary = release_dir / binary_name
-          invalid_binary.write_text("#!/bin/sh\nkill -9 $$\n", encoding="utf-8")
-          invalid_binary.chmod(0o755)
-          invalid_env = {**env, "OPENSWARM_TUI_URL": f"{base_url}/{binary_name}"}
-          invalid_runs = [run_version(binary, root, invalid_env) for _ in range(2)]
+          failure_runs = []
+          invalid_runs = []
+          success_runs = []
+          if binary is not None:
+              failure_env = {**env, "OPENSWARM_TUI_URL": f"{base_url}/missing/{binary_name}"}
+              failure_runs = [run_version(binary, root, failure_env) for _ in range(2)]
 
-          fake_binary = release_dir / binary_name
-          fake_binary.write_text("#!/bin/sh\nprintf '9.9.9-custom\\n'\n", encoding="utf-8")
-          fake_binary.chmod(0o755)
-          success_env = {**env, "OPENSWARM_TUI_URL": f"{base_url}/{binary_name}"}
-          success_runs = [run_version(binary, root, success_env) for _ in range(2)]
+              invalid_binary = release_dir / binary_name
+              invalid_binary.write_text("#!/bin/sh\nkill -9 $$\n", encoding="utf-8")
+              invalid_binary.chmod(0o755)
+              invalid_env = {**env, "OPENSWARM_TUI_URL": f"{base_url}/{binary_name}"}
+              invalid_runs = [run_version(binary, root, invalid_env) for _ in range(2)]
+
+              fake_binary = release_dir / binary_name
+              fake_binary.write_text("#!/bin/sh\nprintf '9.9.9-custom\\n'\n", encoding="utf-8")
+              fake_binary.chmod(0o755)
+              success_env = {**env, "OPENSWARM_TUI_URL": f"{base_url}/{binary_name}"}
+              success_runs = [run_version(binary, root, success_env) for _ in range(2)]
 
           server.shutdown()
           thread.join(timeout=5)
@@ -110,6 +135,12 @@ jobs:
                   install.stdout,
                   "=== install stderr ===",
                   install.stderr,
+                  "=== launcher ===",
+                  str(binary),
+                  "=== launcher listing stdout ===",
+                  "" if listing is None else listing.stdout,
+                  "=== launcher listing stderr ===",
+                  "" if listing is None else listing.stderr,
               ]
               + [
                   f"=== fallback run {idx} stdout ===\n{run.stdout}\n=== fallback run {idx} stderr ===\n{run.stderr}"
@@ -130,8 +161,8 @@ jobs:
               print(f"FAILED: npm install exited with {install.returncode}")
               sys.exit(1)
 
-          if not binary.exists():
-              print(f"FAILED: expected launcher not found at {binary}")
+          if binary is None:
+              print("FAILED: expected launcher not found after npm install")
               sys.exit(1)
 
           for idx, run in enumerate(failure_runs, start=1):
